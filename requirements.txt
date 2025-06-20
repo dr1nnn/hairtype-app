@@ -1,0 +1,11 @@
+streamlit==1.46.0
+streamlit-webrtc==0.62.4
+opencv-python-headless==4.7.0.72
+numpy==1.24.3
+ultralytics==8.2.0
+torch==2.0.1
+torchvision==0.15.2
+Pillow==9.5.0
+av==10.0.0
+pip==25.1.1
+setuptools==58.1.0
