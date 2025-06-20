@@ -6,6 +6,7 @@ from ultralytics import YOLO
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import av
 
+
 # -------------------- PAGE CONFIG & CSS --------------------
 def config_page():
     st.set_page_config(page_title="Hairtype Detection", layout="wide")
