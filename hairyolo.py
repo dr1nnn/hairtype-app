@@ -6,45 +6,66 @@ from ultralytics import YOLO
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import av
 
-
 # -------------------- PAGE CONFIG & CSS --------------------
 def config_page():
     st.set_page_config(page_title="Hairtype Detection", layout="wide")
     st.markdown("""
     <style>
-    /* Sidebar background & text */
+    /* Sidebar background */
     section[data-testid="stSidebar"] {
         background-color: #800000 !important;
         color: white !important;
+        padding-top: 30px;
     }
 
-    /* Semua teks & label di sidebar */
-    section[data-testid="stSidebar"] * {
+    /* Teks label radio dan slider di sidebar */
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] span,
+    section[data-testid="stSidebar"] p {
         color: white !important;
-        font-weight: regular !important;
-        opacity: 1 !important;
     }
 
-    /* Opsi radio yang dipilih */
+    /* Tooltip agar tetap muncul */
+    [data-testid="stTooltipIcon"] {
+        visibility: visible !important;
+        opacity: 1 !important;
+        display: inline-block !important;
+        color: white !important;
+    }
+
+    /* Judul Navigasi */
+    .sidebar-title {
+        color: white !important;
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        margin-left: 10px;
+    }
+
+    /* Opsi radio aktif */
     section[data-testid="stSidebar"] div[data-selected="true"] {
         background-color: #A52A2A !important;
-        border-radius: 5px;
+        border-radius: 8px;
+        padding: 5px 8px;
     }
 
     /* Hover efek */
     section[data-testid="stSidebar"] div[role="radiogroup"] > div:hover {
         background-color: #993333 !important;
         cursor: pointer;
+        border-radius: 8px;
     }
 
-    /* Teks "Navigasi" */
-    .sidebar-title {
-        color: white !important;
-        font-size: 22px;
-        font-weight: bold;
-        text-align: left;
-        margin-top: 70px;
-        margin-bottom: 30px;
+    /* Label radio (judul "Pilih Halaman") */
+    section[data-testid="stSidebar"] label[data-testid="stWidgetLabel"] > div {
+        font-weight: bold !important;
+        font-size: 17px !important;
+        margin-bottom: 10px;
+    }
+
+    /* Opsi radio (teks pilihan) */
+    section[data-testid="stSidebar"] label {
+        font-size: 16px !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -59,7 +80,7 @@ def load_model():
 def get_haircare_info(label):
     info = {
         "straight": {
-            "deskripsi": "Tipe rambut lurus adalah tipe rambut yang jatuh lembut dari akar hingga ujung dengan kilau alami karena minyak mudah tersebar. Namun, jenis ini mudah lepek, kurang bervolume, dan sulit mempertahankan gaya bergelombang atau keriting..",
+            "deskripsi": "Tipe rambut lurus adalah tipe rambut yang jatuh lembut dari akar hingga ujung dengan kilau alami karena minyak mudah tersebar. Namun, tipe ini mudah lepek, kurang bervolume, dan sulit mempertahankan gaya bergelombang atau keriting..",
             "perawatan": "Gunakan sampo ringan & hindari produk berat.",
         },
         "wavy": {
@@ -67,7 +88,7 @@ def get_haircare_info(label):
             "perawatan": "Gunakan sampo bebas sulfat & kondisioner lembap.",
         },
         "curly": {
-            "deskripsi": "Rambut ikal memiliki pola keriting yang terlihat jelas, terutama saat kering. Saat basah, rambut bisa tampak lebih lurus namun akan kembali ikal saat mengering. Jenis rambut ini cenderung mudah mengembang, kering, patah, dan susah diatur.",
+            "deskripsi": "Rambut ikal memiliki pola keriting yang terlihat jelas, terutama saat kering. Saat basah, rambut bisa tampak lebih lurus namun akan kembali ikal saat mengering. tipe rambut ini cenderung mudah mengembang, kering, patah, dan susah diatur.",
             "perawatan": "Gunakan 'squish to condish' & handuk microfiber.",
         },
         "coily": {
@@ -84,7 +105,7 @@ def get_haircare_info(label):
 
 # -------------------- UI COMPONENTS --------------------
 def render_sidebar():
-    st.sidebar.markdown('<div class="sidebar-title">Navigasi</div>', unsafe_allow_html=True)
+    st.sidebar.markdown('<div class="sidebar-title">NAVIGASI</div>', unsafe_allow_html=True)
     return st.sidebar.radio("Pilih Halaman", ["Beranda", "Deteksi", "Informasi Tipe Rambut"])
 
 def render_footer():
@@ -122,36 +143,36 @@ def render_beranda():
     with col_text:
         st.markdown("""
             <div style='font-size:20px; line-height:1.6; text-align:justify;'>
-            Aplikasi ini adalah alat berbasis kecerdasan buatan (AI) yang membantu kamu mengetahui jenis rambutmu—lurus, bergelombang, keriting, atau sangat keriting—hanya dengan mengunggah foto. Sistem akan menganalisis bentuk dan tekstur rambutmu secara otomatis, lalu menampilkan hasilnya dalam hitungan detik.  
+            Aplikasi ini adalah alat berbasis kecerdasan buatan (AI) yang membantu kamu mengetahui tipe rambutmu—lurus, bergelombang, keriting, atau sangat keriting—hanya dengan mengunggah foto. Sistem akan menganalisis bentuk dan tekstur rambutmu secara otomatis, lalu menampilkan hasilnya dalam hitungan detik.  
             <br><br>
-            Mengetahui jenis rambut sangat penting karena setiap tipe rambut membutuhkan perawatan yang berbeda. Dengan aplikasi ini, kamu tidak hanya bisa mengenali jenis rambutmu, tapi juga mendapatkan rekomendasi produk dan cara perawatan yang paling sesuai.
+            Mengetahui tipe rambut sangat penting karena setiap tipe rambut membutuhkan perawatan yang berbeda. Dengan aplikasi ini, kamu tidak hanya bisa mengenali tipe rambutmu, tapi juga mendapatkan rekomendasi produk dan cara perawatan yang paling sesuai.
             </div>
         """, unsafe_allow_html=True)
 
     with col_img:
-        st.image("img/samping.jpg", caption="Contoh deteksi rambut", use_container_width=True)
+        st.image("img/samping.jpg", caption="Contoh deteksi rambut", width=250)
 
     # Bagian Fitur
-    st.markdown("<h3 style='text-align:center; margin-top:40px;'>FITUR</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center; margin-top:10px;'>FITUR</h3>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown(f"""
-        <div style='background-color:#fff; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); text-align:center;'>
+        <div style='background-color:#800000; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); text-align:center;'>
             <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" width="40" style='margin-bottom:12px;'/>
-            <h5 style='color:#800000; margin-bottom:6px;'>Upload Gambar</h5>
-            <p style='font-size:14px; text-align:justify;'>Kamu bisa mengunggah gambar rambut dari perangkatmu, lalu sistem akan secara otomatis menganalisis bentuk dan tekstur rambut untuk menentukan jenis rambut yang dimiliki.</p>
+            <h5 style='color:#fff; margin-bottom:6px;'>Upload Gambar</h5>
+            <p style='color:#fff; font-size:18px; text-align:justify;'>Unggah gambar rambutmu, dan sistem akan otomatis menganalisis bentuk serta teksturnya untuk menentukan tipe rambut.</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown(f"""
-        <div style='background-color:#fff; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); text-align:center;'>
+        <div style='background-color:#800000; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); text-align:center;'>
             <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" width="40" style='margin-bottom:12px;'/>
-            <h5 style='color:#800000; margin-bottom:6px;'>Webcam Real-Time</h5>
-            <p style='font-size:14px; text-align:justify;'>Kamu dapat langsung menggunakan kamera webcam untuk mendeteksi tipe rambut secara real-time tanpa perlu unggah file terlebih dahulu.</p>
+            <h5 style='color:#fff; margin-bottom:6px;'>Webcam Real-Time</h5>
+            <p style='color:#fff; font-size:18px; text-align:justify;'>Deteksi tipe rambut secara waktu nyata menggunakan kamera webcam, tanpa perlu mengunggah gambar terlebih dahulu.</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -162,7 +183,11 @@ def render_deteksi(model):
     tab1, tab2 = st.tabs(["Upload Gambar", "Kamera"])
 
     with tab1:
-        conf = st.slider("Confidence (%)", 10, 100, 50)
+        conf = st.slider(
+            "Confidence (%)", 
+            10, 100, 50, 
+            help="Atur tingkat keyakinan model. Jika hasil deteksi tidak muncul, coba turunkan nilai confidence ini."
+        )
         uploaded = st.file_uploader("Upload Gambar", type=["jpg", "jpeg", "png"])
 
         if uploaded:
@@ -171,7 +196,6 @@ def render_deteksi(model):
             results = model.predict(img_np, conf=conf/100)
             result_img = results[0].plot()
 
-            # Tampilkan Gambar Asli & Hasil Deteksi
             col1, col2 = st.columns(2)
             with col1:
                 st.image(image, caption="Gambar Asli", use_container_width=True)
@@ -183,13 +207,11 @@ def render_deteksi(model):
                 class_ids = boxes.cls.cpu().numpy().astype(int)
                 labels = list(dict.fromkeys([results[0].names[c] for c in class_ids]))
 
-                # Container untuk hasil deteksi
                 st.markdown("""
                     <div style='border: 3px solid #3399ff; border-radius: 15px; padding: 20px; margin-top: 20px; background-color: #f7f9fd;'>
                         <h3 style='text-align:center; color:#003366;'>Tipe Rambut Terdeteksi</h3>
                 """, unsafe_allow_html=True)
 
-                # Tampilkan dalam grup kolom 2 per baris
                 for i in range(0, len(labels), 2):
                     cols = st.columns([1,1])
                     for j in range(2):
@@ -214,35 +236,30 @@ def render_deteksi(model):
                                     </div>
                                 """, unsafe_allow_html=True)
 
-                st.markdown("</div>", unsafe_allow_html=True)  # Tutup container
-
+                st.markdown("</div>", unsafe_allow_html=True)
             else:
                 st.warning("Tidak ada rambut terdeteksi.")
 
-
     with tab2:
         st.markdown("### Deteksi Kamera Real-Time")
-        conf = st.slider("Confidence Kamera (%)", 10, 100, 50, key="conf_cam")
+        conf = st.slider(
+            "Confidence Kamera (%)", 
+            10, 100, 50, 
+            key="conf_cam", 
+            help="Sesuaikan nilai confidence untuk hasil deteksi kamera. Jika tidak terdeteksi, turunkan nilainya."
+        )
 
-        # Warna-warna yang akan dipakai bergantian
         colors = [
-            (0, 255, 0),     # Hijau
-            (0, 0, 255),     # Merah
-            (255, 0, 0),     # Biru
-            (255, 255, 0),   # Kuning
-            (255, 0, 255),   # Ungu
-            (0, 255, 255),   # Cyan
-            (128, 128, 128), # Abu-abu
-            (255, 128, 0),   # Orange
+            (0, 255, 0), (0, 0, 255), (255, 0, 0), (255, 255, 0),
+            (255, 0, 255), (0, 255, 255), (128, 128, 128), (255, 128, 0)
         ]
-
 
         class HairDetectionProcessor(VideoProcessorBase):
             def __init__(self):
                 self.model = model
 
             def recv(self, frame):
-                img = frame.to_ndarray(format="bgr24")  # dari webcam
+                img = frame.to_ndarray(format="bgr24")
                 results = self.model(img, conf=conf / 100)[0]
 
                 for i, box in enumerate(results.boxes):
@@ -250,11 +267,8 @@ def render_deteksi(model):
                     conf_score = float(box.conf[0])
                     cls = int(box.cls[0])
                     label = self.model.names[cls]
-
-                    # Ambil warna unik berdasarkan indeks i
                     color = colors[i % len(colors)]
 
-                    # Gambar bounding box
                     cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
                     cv2.putText(img, f"{label} {conf_score:.2f}", (x1, y1 - 10),
                                 cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
@@ -316,7 +330,7 @@ def render_info():
         0,
         """
         Rambut lurus memiliki helai yang jatuh lembut dari akar hingga ujung, dengan kilau alami karena minyak kulit kepala mudah menyebar. 
-        Namun, jenis rambut ini cenderung mudah lepek, kurang bervolume, dan sulit mempertahankan gaya rambut bergelombang atau keriting.
+        Namun, tipe rambut ini cenderung mudah lepek, kurang bervolume, dan sulit mempertahankan gaya rambut bergelombang atau keriting.
 
         <strong>Kekurangan:
         - Bisa tampak lepek dan kurang bervolume.
@@ -365,7 +379,7 @@ def render_info():
         """
         Rambut ikal memiliki pola keriting yang terlihat jelas, terutama saat kering. Saat basah, 
         rambut bisa tampak lebih lurus namun akan kembali ikal saat mengering. 
-        Jenis rambut ini cenderung mudah mengembang, kering, patah, dan susah diatur.
+        tipe rambut ini cenderung mudah mengembang, kering, patah, dan susah diatur.
 
         <strong>Perawatan:</strong>
         - Gunakan sampo yang mengandung argan oil dan vitamin E.
