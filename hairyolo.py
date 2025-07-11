@@ -139,7 +139,7 @@ def render_beranda():
     st.markdown("<h1 style='text-align:center;'>APLIKASI DETEKSI TIPE RAMBUT MANUSIA</h1>", unsafe_allow_html=True)
     st.markdown("<br><br>", unsafe_allow_html=True)
 
-    col_text, col_img = st.columns([2, 0.9])
+    col_text, col_img = st.columns([2, 0.6])
     with col_text:
         st.markdown("""
             <div style='font-size:20px; line-height:1.6; text-align:justify;'>
