@@ -153,15 +153,16 @@ def render_beranda():
         st.image("img/samping.jpg", caption="Contoh deteksi rambut", width=250)
 
     # Bagian Fitur
-    st.markdown("<h3 style='text-align:center; margin-top:10px;'>FITUR</h3>", unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
+    st.markdown("""
+    <h3 style='text-align:center; margin-top:10px; font-weight:bold;'>FITUR</h3>
+    """, unsafe_allow_html=True)
 
     col1, col2 = st.columns(2)
 
     with col1:
         st.markdown(f"""
-        <div style='background-color:#800000; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); text-align:center;'>
-            <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" width="40" style='margin-bottom:12px;'/>
+        <div style='background-color:#800000; padding:12px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.3); text-align:center;'>
+            <img src="https://cdn-icons-png.flaticon.com/512/159/159604.png" width="40" style='margin-bottom:12px; filter: brightness(0) invert(1);'/>
             <h5 style='color:#fff; margin-bottom:6px;'>Upload Gambar</h5>
             <p style='color:#fff; font-size:18px; text-align:justify;'>Unggah gambar rambutmu, dan sistem akan otomatis menganalisis bentuk serta teksturnya untuk menentukan tipe rambut.</p>
         </div>
@@ -169,8 +170,8 @@ def render_beranda():
 
     with col2:
         st.markdown(f"""
-        <div style='background-color:#800000; padding:12px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,0.06); text-align:center;'>
-            <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" width="40" style='margin-bottom:12px;'/>
+        <div style='background-color:#800000; padding:12px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.3); text-align:center;'>
+            <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" width="40" style='margin-bottom:12px; filter: brightness(0) invert(1);'/>
             <h5 style='color:#fff; margin-bottom:6px;'>Webcam Real-Time</h5>
             <p style='color:#fff; font-size:18px; text-align:justify;'>Deteksi tipe rambut secara waktu nyata menggunakan kamera webcam, tanpa perlu mengunggah gambar terlebih dahulu.</p>
         </div>
@@ -208,8 +209,8 @@ def render_deteksi(model):
                 labels = list(dict.fromkeys([results[0].names[c] for c in class_ids]))
 
                 st.markdown("""
-                    <div style='border: 3px solid #3399ff; border-radius: 15px; padding: 20px; margin-top: 20px; background-color: #f7f9fd;'>
-                        <h3 style='text-align:center; color:#003366;'>Tipe Rambut Terdeteksi</h3>
+                    <div style='border: 3px solid #800000; border-radius: 15px; padding: 20px; margin-top: 20px; background-color: #ffffff;'>
+                        <h3 style='text-align:center; color:#800000;'>Tipe Rambut Terdeteksi</h3>
                 """, unsafe_allow_html=True)
 
                 for i in range(0, len(labels), 2):
