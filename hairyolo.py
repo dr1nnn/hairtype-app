@@ -67,6 +67,7 @@ def config_page():
     section[data-testid="stSidebar"] label {
         font-size: 16px !important;
     }
+    
     </style>
     """, unsafe_allow_html=True)
 
@@ -106,7 +107,7 @@ def get_haircare_info(label):
 # -------------------- UI COMPONENTS --------------------
 def render_sidebar():
     st.sidebar.markdown('<div class="sidebar-title">NAVIGASI</div>', unsafe_allow_html=True)
-    return st.sidebar.radio("Pilih Halaman", ["Beranda", "Deteksi", "Informasi Tipe Rambut"])
+    return st.sidebar.radio("Pilih Halaman", ["Beranda", "Deteksi", "Informasi Tipe Rambut", "Panduan"])
 
 def render_footer():
     st.markdown("""
@@ -172,7 +173,7 @@ def render_beranda():
         st.markdown(f"""
         <div style='background-color:#800000; padding:12px; border-radius:20px; box-shadow:0 4px 12px rgba(0,0,0,0.3); text-align:center;'>
             <img src="https://cdn-icons-png.flaticon.com/512/747/747376.png" width="40" style='margin-bottom:12px; filter: brightness(0) invert(1);'/>
-            <h5 style='color:#fff; margin-bottom:6px;'>Webcam Real-Time</h5>
+            <h5 style='color:#fff; margin-bottom:6px;'>Webcam Waktu Nyata</h5>
             <p style='color:#fff; font-size:18px; text-align:justify;'>Deteksi tipe rambut secara waktu nyata menggunakan kamera webcam, tanpa perlu mengunggah gambar terlebih dahulu.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -242,7 +243,7 @@ def render_deteksi(model):
                 st.warning("Tidak ada rambut terdeteksi.")
 
     with tab2:
-        st.markdown("### Deteksi Kamera Real-Time")
+        st.markdown("### Deteksi Kamera Waktu Nyata")
         conf = st.slider(
             "Confidence Kamera (%)", 
             10, 100, 50, 
@@ -421,6 +422,84 @@ def render_info():
         """
     )
 
+# -------------------- PAGE: PANDUAN --------------------
+def render_panduan():
+    st.markdown("<h1 style='text-align: center;'>PANDUAN PENGGUNAAN APLIKASI</h1>", unsafe_allow_html=True)
+    
+    st.markdown("<br><br>", unsafe_allow_html=True)
+    
+    st.write("""
+    <div style='text-align:justify; font-size:22px; line-height:1.6;'>
+    Selamat datang di aplikasi Deteksi Tipe Rambut Manusia! Aplikasi ini dirancang untuk membantumu mengenali tipe rambut secara otomatis menggunakan teknologi kecerdasan buatan (AI). Ikuti panduan berikut agar kamu bisa menggunakan semua fitur dengan optimal.
+    </div><br>
+    """, unsafe_allow_html=True)
+
+    with st.expander("Navigasi Aplikasi"):
+        st.markdown("""
+        <div style='font-size:16px; text-align:justify;'>
+        Gunakan sidebar di sebelah kiri untuk berpindah antar halaman:
+        <ul>
+        <li><strong>Beranda</strong>: Penjelasan umum tentang aplikasi dan fitur utama.</li>
+        <li><strong>Deteksi</strong>: Untuk mengunggah gambar atau menggunakan kamera dalam mendeteksi tipe rambut.</li>
+        <li><strong>Informasi Tipe Rambut</strong>: Menyediakan edukasi dan tips perawatan berdasarkan tipe rambut.</li>
+        <li><strong>Panduan</strong>: Berisi petunjuk penggunaan aplikasi ini.</li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with st.expander("Deteksi dengan Upload Gambar"):
+        st.markdown("""
+        <div style='font-size:16px; text-align:justify;'>
+        <strong>Langkah-langkah:</strong>
+        <ol>
+        <li>Masuk ke menu <strong>Deteksi</strong>.</li>
+        <li>Pilih tab <strong>Upload Gambar</strong>.</li>
+        <li>Atur tingkat <em>Confidence (%)</em> sesuai kebutuhan (default: 50%).</li>
+        <li>Unggah foto rambut.</li>
+        <li>Hasil deteksi akan muncul secara otomatis.</li>
+        </ol>
+        <em>💡 Tips: Gunakan foto dengan pencahayaan baik dan rambut terlihat jelas.</em>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with st.expander("Deteksi dengan Kamera Waktu Nyata"):
+        st.markdown("""
+        <div style='font-size:16px; text-align:justify;'>
+        <strong>Langkah-langkah:</strong>
+        <ol>
+        <li>Buka menu <strong>Deteksi</strong>, lalu tab <strong>Kamera</strong>.</li>
+        <li>Atur tingkat <em>Confidence Kamera (%)</em>.</li>
+        <li>Klik tombol <strong>START</strong> untuk mengaktifkan kamera.</li>
+        <li>Hasil deteksi akan tampil secara langsung.</li>
+        </ol>
+        <em>🛑 Pastikan browser kamu memiliki izin akses kamera.</em>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+    with st.expander("Informasi Tipe Rambut"):
+        st.markdown("""
+        <div style='font-size:16px; text-align:justify;'>
+        Di halaman ini kamu dapat:
+        <ul>
+        <li>Mengetahui berbagai tipe rambut: lurus, bergelombang, keriting, sangat keriting.</li>
+        <li>Mempelajari kekurangan umum dari tiap tipe.</li>
+        <li>Mendapatkan saran produk dan tips perawatan rambut.</li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with st.expander("Tips Tambahan"):
+        st.markdown("""
+        <div style='font-size:16px; text-align:justify;'>
+        <ul>
+        <li>Gunakan koneksi internet stabil.</li>
+        <li>Coba unggah gambar dari sudut berbeda jika deteksi kurang tepat.</li>
+        <li>Pastikan pencahayaan cukup baik untuk hasil optimal.</li>
+        </ul>
+        </div>
+        """, unsafe_allow_html=True)
+    
 # -------------------- MAIN --------------------
 def main():
     config_page()
@@ -433,8 +512,11 @@ def main():
         render_deteksi(model)
     elif menu == "Informasi Tipe Rambut":
         render_info()
+    elif menu == "Panduan":
+        render_panduan()
 
     render_footer()
+
 
 if __name__ == "__main__":
     main()
