@@ -196,13 +196,35 @@ def render_deteksi(model):
             image = Image.open(uploaded).convert("RGB")
             img_np = np.array(image)
             results = model.predict(img_np, conf=conf/100)
-            result_img = results[0].plot()
+            # Salin image asli untuk digambar manual
+            img_result = img_np.copy()
 
-            col1, col2 = st.columns(2)
-            with col1:
-                st.image(image, caption="Gambar Asli", use_container_width=True)
-            with col2:
-                st.image(result_img, caption="Hasil Deteksi", use_container_width=True)
+            # Warna berdasarkan label
+            label_colors = {
+                "straight": (255, 0, 0),   # Merah
+                "wavy": (0, 255, 0),       # Hijau
+                "curly": (0, 0, 255),      # Biru
+                "coily": (128, 0, 128),    # Ungu
+            }
+
+            boxes = results[0].boxes
+            if boxes and boxes.cls.numel() > 0:
+                for box in boxes:
+                    x1, y1, x2, y2 = map(int, box.xyxy[0])
+                    conf_score = float(box.conf[0])
+                    class_id = int(box.cls[0])
+                    label = results[0].names[class_id]
+                    color = label_colors.get(label.lower(), (255, 255, 255))  # default: putih
+
+                    cv2.rectangle(img_result, (x1, y1), (x2, y2), color, 3)
+                    cv2.putText(img_result, f"{label} {conf_score:.2f}", (x1, y1 - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.image(image, caption="Gambar Asli", use_container_width=True)
+                with col2:
+                    st.image(img_result, caption="Hasil Deteksi (Berwarna)", use_container_width=True)
 
             boxes = results[0].boxes
             if boxes and boxes.cls.numel() > 0:
@@ -221,7 +243,7 @@ def render_deteksi(model):
                             label = labels[i + j]
                             info = get_haircare_info(label)
                             video_urls = {
-                                "straight": "rVVfarHoHC0",
+                                "straight": "7287618275112996102",
                                 "wavy": "7497634254172458247",
                                 "curly": "7425542102844476678",
                                 "coily": "7258012818312809774"
