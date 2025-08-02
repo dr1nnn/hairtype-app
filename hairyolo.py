@@ -221,7 +221,7 @@ def render_deteksi(model):
                             label = labels[i + j]
                             info = get_haircare_info(label)
                             video_urls = {
-                                "straight": "7287618275112996102",
+                                "straight": "rVVfarHoHC0",
                                 "wavy": "7497634254172458247",
                                 "curly": "7425542102844476678",
                                 "coily": "7258012818312809774"
