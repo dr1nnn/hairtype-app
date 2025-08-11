@@ -71,7 +71,6 @@ def config_page():
     </style>
     """, unsafe_allow_html=True)
 
-
 # -------------------- MODEL LOADING --------------------
 @st.cache_resource
 def load_model():
@@ -102,7 +101,6 @@ def get_haircare_info(label):
         "perawatan": "Informasi tidak tersedia.",
         "styling": "Informasi tidak tersedia."
     })
-
 
 # -------------------- UI COMPONENTS --------------------
 def render_sidebar():
@@ -177,7 +175,6 @@ def render_beranda():
             <p style='color:#fff; font-size:18px; text-align:justify;'>Deteksi tipe rambut secara waktu nyata menggunakan kamera webcam, tanpa perlu mengunggah gambar terlebih dahulu.</p>
         </div>
         """, unsafe_allow_html=True)
-
 
 # -------------------- PAGE: DETEKSI --------------------
 def render_deteksi(model):
@@ -372,7 +369,6 @@ def render_info():
         """
     )
 
-
     hair_type_box(
         "Tipe Rambut Bergelombang",
         "Wavy",
@@ -393,7 +389,6 @@ def render_info():
         - Tambahkan sea salt spray atau mousse ringan untuk efek bergelombang yang tahan lama.
         """
     )
-
 
     hair_type_box(
         "Tipe Rambut Keriting",
