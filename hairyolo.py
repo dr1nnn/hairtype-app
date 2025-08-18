@@ -5,6 +5,8 @@ from PIL import Image
 from ultralytics import YOLO
 from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import av
+import time
+from collections import deque
 
 # -------------------- PAGE CONFIG & CSS --------------------
 def config_page():
@@ -71,6 +73,7 @@ def config_page():
     </style>
     """, unsafe_allow_html=True)
 
+
 # -------------------- MODEL LOADING --------------------
 @st.cache_resource
 def load_model():
@@ -84,7 +87,7 @@ def get_haircare_info(label):
             "perawatan": "Gunakan sampo ringan & hindari produk berat.",
         },
         "wavy": {
-            "deskripsi": "Rambut bergelombang memiliki bentuk “S” yang muncul di bagian tengah hingga ujung rambut, dan cenderung memiliki volume alami lebih banyak dari rambut lurus. Tantangannya adalah mudah kusut, rentan mengembang (frizzy), serta gelombangnya bisa tidak konsisten.",
+            "deskripsi": "Rambut bergelombang memiliki bentuk â€œSâ€ yang muncul di bagian tengah hingga ujung rambut, dan cenderung memiliki volume alami lebih banyak dari rambut lurus. Tantangannya adalah mudah kusut, rentan mengembang (frizzy), serta gelombangnya bisa tidak konsisten.",
             "perawatan": "Gunakan sampo bebas sulfat & kondisioner lembap.",
         },
         "curly": {
@@ -101,6 +104,7 @@ def get_haircare_info(label):
         "perawatan": "Informasi tidak tersedia.",
         "styling": "Informasi tidak tersedia."
     })
+
 
 # -------------------- UI COMPONENTS --------------------
 def render_sidebar():
@@ -124,7 +128,7 @@ def render_footer():
     
     <hr style="border: none; border-top: 1px solid #ccc; margin-top: 50px;"/>
     <div style="text-align: center; padding:10px 0 5px 0; color: red;">
-        <p style="margin: 0; font-size: 16px;">&copy; 2025 <strong>Hairtype Detection</strong> — Geldrin Reawaruw</p>
+        <p style="margin: 0; font-size: 16px;">&copy; 2025 <strong>Hairtype Detection</strong>Geldrin Reawaruw</p>
         <p style="margin: 5px 0; font-size: 15px;">
             <a href="https://github.com/" target="_blank" style="color: red; text-decoration: none; margin: 0 10px;">GitHub</a> |
             <a href="https://www.instagram.com/gldrin_reawaruw/" target="_blank" style="color: red; text-decoration: none; margin: 0 10px;">Instagram</a> |
@@ -142,7 +146,7 @@ def render_beranda():
     with col_text:
         st.markdown("""
             <div style='font-size:20px; line-height:1.6; text-align:justify;'>
-            Aplikasi ini adalah alat berbasis kecerdasan buatan (AI) yang membantu kamu mengetahui tipe rambutmu—lurus, bergelombang, keriting, atau sangat keriting—hanya dengan mengunggah foto. Sistem akan menganalisis bentuk dan tekstur rambutmu secara otomatis, lalu menampilkan hasilnya dalam hitungan detik.  
+            Aplikasi ini adalah alat berbasis kecerdasan buatan (AI) yang membantu kamu mengetahui tipe rambutmu lurus, bergelombang, keriting, atau sangat keriting hanya dengan mengunggah foto. Sistem akan menganalisis bentuk dan tekstur rambutmu secara otomatis, lalu menampilkan hasilnya dalam hitungan detik.  
             <br><br>
             Mengetahui tipe rambut sangat penting karena setiap tipe rambut membutuhkan perawatan yang berbeda. Dengan aplikasi ini, kamu tidak hanya bisa mengenali tipe rambutmu, tapi juga mendapatkan rekomendasi produk dan cara perawatan yang paling sesuai.
             </div>
@@ -219,9 +223,9 @@ def render_deteksi(model):
 
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.image(image, caption="Gambar Asli", use_container_width=True)
+                    st.image(image, caption="Gambar Asli")
                 with col2:
-                    st.image(img_result, caption="Hasil Deteksi (Berwarna)", use_container_width=True)
+                    st.image(img_result, caption="Hasil Deteksi (Berwarna)")
 
             boxes = results[0].boxes
             if boxes and boxes.cls.numel() > 0:
@@ -261,47 +265,106 @@ def render_deteksi(model):
             else:
                 st.warning("Tidak ada rambut terdeteksi.")
 
-    with tab2:
-        st.markdown("### Deteksi Kamera Waktu Nyata")
-        conf = st.slider(
-            "Confidence Kamera (%)", 
-            10, 100, 50, 
-            key="conf_cam", 
-            help="Sesuaikan nilai confidence untuk hasil deteksi kamera. Jika tidak terdeteksi, turunkan nilainya."
-        )
+        with tab2:
+            st.markdown("### Deteksi Kamera Waktu Nyata")
+            conf = st.slider(
+                "Confidence Kamera (%)", 
+                10, 100, 50, 
+                key="conf_cam", 
+                help="Sesuaikan nilai confidence untuk hasil deteksi kamera. Jika tidak terdeteksi, turunkan nilainya."
+            )
 
-        colors = [
-            (0, 255, 0), (0, 0, 255), (255, 0, 0), (255, 255, 0),
-            (255, 0, 255), (0, 255, 255), (128, 128, 128), (255, 128, 0)
-        ]
+            # Tampilan Webcam di bagian atas
+            class HairDetectionProcessor(VideoProcessorBase):
+                def __init__(self):
+                    self.model = model
+                    self.detected_labels = []  # Store detected labels for display
 
-        class HairDetectionProcessor(VideoProcessorBase):
-            def __init__(self):
-                self.model = model
+                def recv(self, frame):
+                    img = frame.to_ndarray(format="bgr24")
+                    results = self.model(img, conf=conf / 100)[0]
 
-            def recv(self, frame):
-                img = frame.to_ndarray(format="bgr24")
-                results = self.model(img, conf=conf / 100)[0]
+                    if results.boxes is not None and len(results.boxes) > 0:
+                        for box in results.boxes:
+                            x1, y1, x2, y2 = map(int, box.xyxy[0])
+                            conf_score = float(box.conf[0])
+                            cls = int(box.cls[0])
+                            label = self.model.names[cls]
 
-                for i, box in enumerate(results.boxes):
-                    x1, y1, x2, y2 = map(int, box.xyxy[0])
-                    conf_score = float(box.conf[0])
-                    cls = int(box.cls[0])
-                    label = self.model.names[cls]
-                    color = colors[i % len(colors)]
+                            # Draw bounding box dan label
+                            cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                            cv2.putText(img, f"{label} {conf_score:.2f}", (x1, y1 - 10),
+                                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
 
-                    cv2.rectangle(img, (x1, y1), (x2, y2), color, 2)
-                    cv2.putText(img, f"{label} {conf_score:.2f}", (x1, y1 - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.6, color, 2)
+                            # Simpan hasil label
+                            self.detected_labels.append((label, conf_score))
 
-                return av.VideoFrame.from_ndarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), format="rgb24")
+                    return av.VideoFrame.from_ndarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB), format="rgb24")
 
-        webrtc_streamer(
-            key="hairtype-realtime",
-            video_processor_factory=HairDetectionProcessor,
-            media_stream_constraints={"video": True, "audio": False},
-            async_processing=True,
-        )
+            ctx = webrtc_streamer(
+                key="hairtype-realtime",
+                video_processor_factory=HairDetectionProcessor,
+                media_stream_constraints={"video": True, "audio": False},
+                async_processing=True,
+            )
+
+            # Bagian bawah: hasil deteksi
+            result_container = st.empty()
+
+            if ctx.video_processor:
+                while ctx.state.playing:
+                    labels_now = list({label for (label, _) in ctx.video_processor.detected_labels})
+
+                    video_urls = {
+                        "straight": "7287618275112996102",
+                        "wavy": "7497634254172458247",
+                        "curly": "7425542102844476678",
+                        "coily": "7258012818312809774"
+                    }
+
+                    with result_container.container():
+                        if labels_now:
+                            st.markdown("""
+                                <div style='border: 3px solid #800000; border-radius: 15px; 
+                                            padding: 20px; margin-top: 20px; background-color: #ffffff;'>
+                                    <h3 style='text-align:center; color:#800000;'>Tipe Rambut Terdeteksi</h3>
+                            """, unsafe_allow_html=True)
+
+                            # tampilkan dalam grid 2 kolom sama seperti Upload
+                            for i in range(0, len(labels_now), 2):
+                                cols = st.columns([1, 1])
+                                for j in range(2):
+                                    if i + j < len(labels_now):
+                                        label = labels_now[i + j]
+                                        try:
+                                            info = get_haircare_info(label)
+                                        except NameError:
+                                            info = {
+                                                "deskripsi": "Informasi deskripsi belum tersedia.",
+                                                "perawatan": "Informasi perawatan belum tersedia."
+                                            }
+
+                                        vid = video_urls.get(label.lower(), "")
+                                        video_embed = f"<iframe src='https://www.tiktok.com/embed/{vid}' width='100%' height='530' frameborder='0' allowfullscreen></iframe>" if vid else ""
+
+                                        with cols[j]:
+                                            st.markdown(f"""
+                                                <div style='background-color:#fff; border-radius:10px; padding:15px; 
+                                                            box-shadow: 2px 2px 10px #ccc;'>
+                                                    <h4 style='color:#800000;'>Tipe: {label.capitalize()}</h4>
+                                                    <p style='margin-bottom:10px; font-size:18px; text-align: justify;'>{info['deskripsi']}</p>
+                                                    <p style='margin-bottom:10px; font-size:18px; text-align: justify;'>
+                                                        <strong>Tips Perawatan:</strong> {info['perawatan']}
+                                                    </p>
+                                                    {video_embed}
+                                                </div>
+                                            """, unsafe_allow_html=True)
+
+                            st.markdown("</div>", unsafe_allow_html=True)
+                        else:
+                            st.warning("Tidak ada rambut terdeteksi.")
+
+                    time.sleep(0.2)
 
 # -------------------- PAGE: INFORMASI --------------------
 def render_info():
